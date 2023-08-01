@@ -1,22 +1,33 @@
-import { Body, Controller, Get, Post, Req } from '@nestjs/common';
+import { HttpStatus, Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
 import { request } from 'express';
 import { HttpCode, Header, Query, Redirect, Param } from '@nestjs/common';
 import { CreateCatDto } from './create-cat.dto';
+import { CatsService } from './cats.service';
 
 @Controller('cats')
 @Controller({host: 'admin.example.com'})
 export class CatsController {
+  constructor(private catsService: CatsService) {}
+
+
   @Post()
   // @HttpCode(204)
   @Header('Cache-Control', 'none')
   async create(@Body() createCatDto: CreateCatDto): Promise<string> {
     console.log(createCatDto);
+    await this.catsService.create(createCatDto)
     return `This action adds a new cat `;
   }
 
   @Get()
-  findAll(): string {
-    return 'This action returns all cats';
+  async findAll(@Res() res:Response): Promise<any> {
+    // const result = this.catsService.findAll()
+    // return '1'
+    // return result
+    // res.status(HttpStatus.CREATED).send({
+    //   result
+    // })
+    return `This action returns all cats ${res}!`;
   }
 
   @Get('docs')
@@ -32,10 +43,12 @@ export class CatsController {
     return 'This route uses a wildcard';
   }
 
+  // 方法一
   // @Get(':id')
   // findOne(@Param() params): string {
   //   return `This action returns ${params.id} cats`;
   // }
+  // 方法二
   @Get(':id')
   findOne(@Param('id') id): string {
     return `This action returns ${id} cats`;
