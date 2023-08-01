@@ -1,5 +1,5 @@
 import { HttpStatus, Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
-import { request } from 'express';
+import { Response, Request, query } from 'express';
 import { HttpCode, Header, Query, Redirect, Param } from '@nestjs/common';
 import { CreateCatDto } from './dto/create-cat.dto';
 import { CatsService } from './cats.service';
@@ -11,7 +11,6 @@ export class CatsController {
 
 
   @Post()
-  // @HttpCode(204)
   @Header('Cache-Control', 'none')
   async create(@Body() createCatDto: CreateCatDto): Promise<string> {
     console.log(createCatDto);
@@ -19,17 +18,15 @@ export class CatsController {
     return `This action adds a new cat `;
   }
 
+  // {passthrough: true} 用了@Res然后加这个 就可以继续使用
+  // nestjs 的 特性 比如这里的 return 当成response
   @Get()
-  async findAll(@Res() res:Response): Promise<any> {
-    // const result = this.catsService.findAll()
-    // return '1'
-    // return result
-    // res.status(HttpStatus.CREATED).send({
-    //   result
-    // })
-    return `This action returns all cats ${res}!`;
+  async findAll(@Res({passthrough: true}) res:Response): Promise<void> {
+    const result = this.catsService.findAll()
+    res.status(HttpStatus.CREATED).send({result})
   }
 
+  // 重定向
   @Get('docs')
   @Redirect('https://nestjs.com')
   getDocs(@Query('version') version) {
@@ -38,6 +35,7 @@ export class CatsController {
     }
   }
 
+  // 匹配路由
   @Get('ab*cd')
   wildcard() {
     return 'This route uses a wildcard';
@@ -49,13 +47,27 @@ export class CatsController {
   //   return `This action returns ${params.id} cats`;
   // }
   // 方法二
-  @Get(':id')
-  findOne(@Param('id') id): string {
-    return `This action returns ${id} cats`;
+  @Get('findOnebyId/:id')
+  findOne(@Param('id') id, @Query() query, @Res({passthrough:true}) res:Response): object {
+    console.log(id, query);
+
+    /**
+     * 这里用res.send和直接return都可以
+     */
+    // res.send({
+    //   id, query
+    // })
+    return {
+      id: id,
+      ...query
+    }
   }
 
-  // @Get('promiseFindAll')
-  // async findAll2(): Promise<any[]> {
-  //   return [];
-  // }
+
+  // 自定义状态码
+  @Get('stateCode')
+  @HttpCode(204)
+  stateCode() {
+    return "userState"
+  }
 }
