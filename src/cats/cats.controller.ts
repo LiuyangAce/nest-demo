@@ -4,6 +4,9 @@ import { HttpCode, Header, Query, Redirect, Param } from '@nestjs/common';
 import { CreateCatDto } from './dto/create-cat.dto';
 import { CatsService } from './cats.service';
 
+// 导入自定义异常
+import { ForbiddenException } from 'src/exception/forbidden.exception';
+
 @Controller('cats')
 @Controller({host: 'admin.example.com'})
 export class CatsController {
@@ -26,11 +29,16 @@ export class CatsController {
     // res.status(HttpStatus.CREATED).send({result})
 
 
+    /**
+     * 抛出异常的方法
+     */
     // throw new HttpException('Forbiddenxxx', HttpStatus.FORBIDDEN);
-    throw new HttpException({
-      stateCode: HttpStatus.FORBIDDEN,
-      message: 'this is message'
-    }, HttpStatus.FORBIDDEN);
+    // throw new HttpException({
+    //   stateCode: HttpStatus.FORBIDDEN,
+    //   message: 'this is message'
+    // }, HttpStatus.FORBIDDEN);
+
+    throw new ForbiddenException();
   }
 
   // 重定向
