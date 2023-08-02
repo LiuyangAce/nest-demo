@@ -1,4 +1,4 @@
-import { HttpStatus, Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
+import { HttpStatus, Body, Controller, Get, Post, Req, Res, HttpException } from '@nestjs/common';
 import { Response, Request, query } from 'express';
 import { HttpCode, Header, Query, Redirect, Param } from '@nestjs/common';
 import { CreateCatDto } from './dto/create-cat.dto';
@@ -22,8 +22,15 @@ export class CatsController {
   // nestjs 的 特性 比如这里的 return 当成response
   @Get()
   async findAll(@Res({passthrough: true}) res:Response): Promise<void> {
-    const result = this.catsService.findAll()
-    res.status(HttpStatus.CREATED).send({result})
+    // const result = this.catsService.findAll()
+    // res.status(HttpStatus.CREATED).send({result})
+
+
+    // throw new HttpException('Forbiddenxxx', HttpStatus.FORBIDDEN);
+    throw new HttpException({
+      stateCode: HttpStatus.FORBIDDEN,
+      message: 'this is message'
+    }, HttpStatus.FORBIDDEN);
   }
 
   // 重定向
