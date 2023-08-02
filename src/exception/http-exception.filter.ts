@@ -9,6 +9,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
     const status = exception.getStatus();
+    const exceptionResponse = exception.getResponse()
+
+    /**
+     * 这里获取到自定义异常/异常中的东西
+     */
+    console.log('exception:',exception);
 
     response
       .status(status)
@@ -16,6 +22,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
         statusCode: status,
         timestamp: new Date().toISOString(),
         path: request.url,
+        exceptionResponse
       });
   }
 }

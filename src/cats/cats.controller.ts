@@ -1,4 +1,4 @@
-import { HttpStatus, Body, Controller, Get, Post, Req, Res, HttpException } from '@nestjs/common';
+import { HttpStatus, Body, Controller, Get, Post, Req, Res, HttpException, UseFilters } from '@nestjs/common';
 import { Response, Request, query } from 'express';
 import { HttpCode, Header, Query, Redirect, Param } from '@nestjs/common';
 import { CreateCatDto } from './dto/create-cat.dto';
@@ -6,6 +6,8 @@ import { CatsService } from './cats.service';
 
 // 导入自定义异常
 import { ForbiddenException } from 'src/exception/forbidden.exception';
+import { HttpExceptionFilter } from 'src/exception/http-exception.filter';
+import { AllExceptionsFilter } from 'src/exception/all-exceptions.filter';
 
 @Controller('cats')
 @Controller({host: 'admin.example.com'})
@@ -15,10 +17,21 @@ export class CatsController {
 
   @Post()
   @Header('Cache-Control', 'none')
+  /**
+   *  @UseFilters()装饰器 参数的两种形式
+   *  实例或者类（推荐）
+   */
+  // @UseFilters(new HttpExceptionFilter)
+  // @UseFilters(HttpExceptionFilter)
+  @UseFilters(AllExceptionsFilter)
   async create(@Body() createCatDto: CreateCatDto): Promise<string> {
-    console.log(createCatDto);
+    console.log('传入的参数：',createCatDto);
     await this.catsService.create(createCatDto)
-    return `This action adds a new cat `;
+    // if (Math.random() > 0.5) {
+    //   return `This action adds a new cat `;
+    // } else {
+      throw new ForbiddenException();
+    // }
   }
 
   // {passthrough: true} 用了@Res然后加这个 就可以继续使用
