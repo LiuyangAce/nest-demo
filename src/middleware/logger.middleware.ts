@@ -13,4 +13,4 @@ export class LoggerMiddleware implements NestMiddleware {
 export function logger(req, res, next) {
   console.log(`函数式中间件 Request...`);
   next();
-};
+}
