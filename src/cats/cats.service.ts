@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, Optional } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Cat } from './model/cat.model';
 
@@ -7,6 +7,7 @@ export class CatsService {
   constructor(
     @InjectModel(Cat)
     private readonly catModel: typeof Cat,
+    @Optional() @Inject('HTTP_OPTIONS_self') private readonly httpClient,
   ) {}
   // private readonly cats = [];
 
@@ -16,6 +17,8 @@ export class CatsService {
   }
 
   findAll() {
+    console.log('this.httpClient:', this.httpClient);
+
     const result = this.catModel.findAll();
     console.log(result);
     // return this.cats;
