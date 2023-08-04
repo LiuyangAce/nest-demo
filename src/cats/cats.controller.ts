@@ -33,10 +33,12 @@ import { UpdateCatDto } from './dto/update-cat.dto';
 //   age: Joi.number().integer().min(1).max(30).required(),
 //   breed: Joi.string().required(),
 // });
-@Controller('cats')
+
+// @Controller('cats')
 // @ApiBearerAuth()
 @ApiTags('catTags')
-@Controller({ host: 'admin.example.com' })
+// 指定 host为localhost以及
+@Controller({ host: 'localhost', path: 'cats' })
 export class CatsController {
   constructor(private catsService: CatsService) {}
 
