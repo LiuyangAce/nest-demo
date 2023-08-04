@@ -3,7 +3,11 @@ import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { logger } from './middleware/logger.middleware';
 import { HttpExceptionFilter } from './exception/http-exception.filter';
-import { ValidationPipe } from './pipe/validation.pipe';
+// import { ValidationPipe } from './pipe/validation.pipe';
+
+import { swaggerInit } from 'src/utils/swagger';
+import { Validate } from 'class-validator';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -24,6 +28,7 @@ async function bootstrap() {
   // 同上 不会为网关和混合应用程序设置过滤器。
   app.useGlobalPipes(new ValidationPipe());
 
+  swaggerInit(app);
   await app.listen(3000);
 }
 bootstrap();

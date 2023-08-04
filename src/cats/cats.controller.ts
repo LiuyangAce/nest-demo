@@ -10,6 +10,8 @@ import {
   UseFilters,
   ParseIntPipe,
   UsePipes,
+  Put,
+  Delete,
 } from '@nestjs/common';
 import { Response, Request, query } from 'express';
 import { HttpCode, Header, Query, Redirect, Param } from '@nestjs/common';
@@ -22,6 +24,8 @@ import { HttpExceptionFilter } from 'src/exception/http-exception.filter';
 import { AllExceptionsFilter } from 'src/exception/all-exceptions.filter';
 import { JoiValidationPipe, ValidationPipe } from 'src/pipe/validation.pipe';
 import Joi from 'joi';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { UpdateCatDto } from './dto/update-cat.dto';
 
 // 对象结构验证
 // const createCatSchema = Joi.object({
@@ -30,11 +34,14 @@ import Joi from 'joi';
 //   breed: Joi.string().required(),
 // });
 @Controller('cats')
+// @ApiBearerAuth()
+@ApiTags('catTags')
 @Controller({ host: 'admin.example.com' })
 export class CatsController {
   constructor(private catsService: CatsService) {}
 
   @Post()
+  @ApiOperation({ summary: '创建cat' })
   @Header('Cache-Control', 'none')
   /**
    *  @UseFilters()装饰器 参数的两种形式
@@ -42,25 +49,26 @@ export class CatsController {
    */
   // @UseFilters(new HttpExceptionFilter)
   // @UseFilters(HttpExceptionFilter)
-  @UseFilters(AllExceptionsFilter)
+  // @UseFilters(AllExceptionsFilter)
   // @UsePipes(new JoiValidationPipe(createCatSchema))
-  async create(@Body() createCatDto: CreateCatDto): Promise<string> {
-    console.log('传入的参数：', createCatDto);
-    await this.catsService.create(createCatDto);
-    if (Math.random() > 0.5) {
-      return `This action adds a new cat `;
-    } else {
-      throw new ForbiddenException();
-    }
+  async create(@Body() createCatBody: CreateCatDto): Promise<string> {
+    console.log('传入的参数：', createCatBody);
+    await this.catsService.create(createCatBody);
+    // if (Math.random() > 0.5) {
+    return `This action adds a new cat `;
+    // } else {
+    // throw new ForbiddenException();
+    // }
   }
 
   // {passthrough: true} 用了@Res然后加这个 就可以继续使用
   // nestjs 的 特性 比如这里的 return 当成response
   @Get()
-  async findAll(@Res({ passthrough: true }) res: Response): Promise<void> {
-    // const result = this.catsService.findAll()
+  @ApiOperation({ summary: '查询所有' })
+  async findAll(@Res({ passthrough: true }) res: Response) {
+    const result = await this.catsService.findAll();
+    return result;
     // res.status(HttpStatus.CREATED).send({result})
-
     /**
      * 抛出异常的方法
      */
@@ -69,8 +77,15 @@ export class CatsController {
     //   stateCode: HttpStatus.FORBIDDEN,
     //   message: 'this is message'
     // }, HttpStatus.FORBIDDEN);
+    // throw new ForbiddenException();
+  }
 
-    throw new ForbiddenException();
+  @Post('/findAttr')
+  @ApiOperation({ summary: '查询特定属性' })
+  findAttr(@Req() req: Request) {
+    const result = this.catsService.findAttr();
+    console.log(result);
+    return [];
   }
 
   // 重定向
@@ -94,28 +109,31 @@ export class CatsController {
   //   return `This action returns ${params.id} cats`;
   // }
   // 方法二
-  @Get('findOnebyId/:id')
-  findOne(
+  @Get(':id')
+  async findOne(
     @Param(
       'id',
-      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE }),
+      // new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE }),
     )
     id,
     @Query('name', ParseIntPipe) query,
     @Res({ passthrough: true }) res: Response,
-  ): object {
-    console.log(id, query);
-
+  ): Promise<object> {
+    console.log('in findOne:', id, query);
+    const result = await this.catsService.findOne(id);
+    // console.log(result);
+    console.log(result[0].dataValues);
+    return result;
     /**
      * 这里用res.send和直接return都可以
      */
     // res.send({
     //   id, query
     // })
-    return {
-      id: id,
-      ...query,
-    };
+    // return {
+    //   id: id,
+    //   ...query,
+    // };
   }
 
   // 自定义状态码
@@ -123,5 +141,25 @@ export class CatsController {
   @HttpCode(204)
   stateCode() {
     return 'userState';
+  }
+
+  @Put(':id')
+  @ApiOperation({ summary: '根据id更新数据' })
+  async update(@Param('id') id: string, @Body() body: UpdateCatDto) {
+    console.log('in Put:', id, body);
+    const result = await this.catsService.updateOne(id, body);
+    console.log(result);
+    return result;
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: '根据id删除数据' })
+  async drop(
+    @Param() paramId,
+    @Query() id: string,
+    @Body() body: UpdateCatDto,
+  ) {
+    console.log(paramId, id, body);
+    return await this.catsService.dropOne(paramId.id);
   }
 }

@@ -10,7 +10,9 @@ import { ObjectSchema } from 'joi';
 @Injectable()
 export class ValidationPipe implements PipeTransform<any> {
   async transform(value: any, { metatype }: ArgumentMetadata) {
+    console.log('pipe ValidationPipe', value, metatype);
     if (!metatype || !this.toValidate(metatype)) {
+      console.log(1234);
       return value;
     }
     const object = plainToInstance(metatype, value);
