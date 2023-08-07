@@ -1,10 +1,10 @@
-import { Controller,Get } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 
 // @Controller('admin-controller')
-@Controller({ host: 'admin.example.com' })
+@Controller({ host: 'localhost', path: 'admin' })
 export class AdminControllerController {
   @Get()
-  index():string{
-    return 'admin page'
+  index(): string {
+    return 'admin page';
   }
 }

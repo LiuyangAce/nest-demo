@@ -7,7 +7,7 @@ import { Cat } from './model/cat.model';
 export const HTTP_OPTIONS = 'ltt';
 
 // 将这个模块变成全局模块 在任何地方都能使用
-@Global()
+// @Global()
 @Module({
   imports: [SequelizeModule.forFeature([Cat])],
   controllers: [CatsController],

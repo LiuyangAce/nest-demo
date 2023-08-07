@@ -37,7 +37,7 @@ import { UpdateCatDto } from './dto/update-cat.dto';
 // @Controller('cats')
 // @ApiBearerAuth()
 @ApiTags('catTags')
-// 指定 host为localhost以及
+// 指定 host为localhost
 @Controller({ host: 'localhost', path: 'cats' })
 export class CatsController {
   constructor(private catsService: CatsService) {}
